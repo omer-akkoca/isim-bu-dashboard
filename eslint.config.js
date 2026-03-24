@@ -1,9 +1,10 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
   globalIgnores(['dist']),
@@ -15,9 +16,34 @@ export default defineConfig([
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
+    plugins: {
+      import: importPlugin,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'import/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          pathGroups: [
+            {
+              pattern: 'react',
+              group: 'external',
+              position: 'before',
+            },
+          ],
+          'newlines-between': 'always',
+          pathGroupsExcludedImportTypes: ['react'],
+          alphabetize: { order: 'asc' },
+        },
+      ],
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-console': 'warn',
+      'react-hooks/exhaustive-deps': 'off',
+    },
   },
-])
+]);

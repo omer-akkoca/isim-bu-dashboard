@@ -1,11 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
-import UsersPage from './pages/dashboard/UsersPage';
-import CVsPage from './pages/dashboard/CVsPage';
+import { AuthProvider } from './providers/AuthProvider';
+import { CVsPage, DashboardHome, HomePage, LoginPage, UsersPage } from './pages';
 
 function App() {
   return (
@@ -23,7 +20,7 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="users" replace />} />
+            <Route index element={<DashboardHome />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="cvs" element={<CVsPage />} />
           </Route>
