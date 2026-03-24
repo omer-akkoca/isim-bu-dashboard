@@ -1,11 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
 * {
   font-family: 'Sora', sans-serif;
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #222530; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #5A5F7A; }
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #222530;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5f7a;
+}
+
+@theme {
+  --color-primary: #6366f1;
+  --color-primary-light: #818cf8;
+  --color-secondary: #8b5cf6;
+
+  /* buraya istediğin renkleri ekle */
+  --color-surface: #1c1e27;
+  --color-background: #0b0c10;
+}
+
+@layer base {
+  button {
+    cursor: pointer;
+  }
+}

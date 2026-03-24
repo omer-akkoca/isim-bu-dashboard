@@ -1,47 +1,35 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
-import { Users, Search, Mail, Phone, MapPin, Calendar } from 'lucide-react';
-
-interface UserProfile {
-  id: string;
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  location?: string;
-  createdAt?: any;
-  photoURL?: string;
-  title?: string;
-}
+import { Users, Search, Mail, Phone, MapPin, Calendar, ChevronRight, ChevronLeft } from 'lucide-react';
+import type { IUser } from '../../types';
+import { useUserActions } from '../../actions';
 
 const UsersPage = () => {
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [users, setUsers] = useState<IUser[]>([]);
   const [search, setSearch] = useState('');
 
+  const { loading, totalPages, getUsers } = useUserActions();
+
+  const boot = async () => {
+    const data = await getUsers();
+    setUsers(data);
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const snap = await getDocs(collection(db, 'users'));
-        setUsers(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as UserProfile[]);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
+    boot();
   }, []);
 
   const filtered = users.filter(
     u =>
-      u.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+      u.name?.toLowerCase().includes(search.toLowerCase()) ||
+      u.surname?.toLowerCase().includes(search.toLowerCase()) ||
       u.email?.toLowerCase().includes(search.toLowerCase()) ||
       u.title?.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
-    <div className="p-9 max-w-[1200px] animate-[fadeUp_0.3s_ease]">
+    <div className="p-10 mx-auto animate-[fadeUp_0.3s_ease]">
       <style>{`@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }`}</style>
 
       {/* Header */}
@@ -80,19 +68,19 @@ const UsersPage = () => {
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
           {filtered.map(user => (
             <div
-              key={user.id}
+              key={user.uid}
               className="bg-[#1C1E27] border border-white/6 rounded-2xl p-5 hover:border-[#6366F1]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/30 transition-all"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center text-[16px] font-bold text-white shrink-0 overflow-hidden">
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt={user.fullName} className="w-full h-full object-cover" />
+                <div className="w-11 h-11 rounded-full bg-linear-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center text-[16px] font-bold text-white shrink-0 overflow-hidden">
+                  {user.photoUrl ? (
+                    <img src={user.photoUrl} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span>{(user.fullName || user.email || '?')[0].toUpperCase()}</span>
+                    <span>{(user.name || user.email || '?')[0].toUpperCase()}</span>
                   )}
                 </div>
                 <div>
-                  <div className="text-[14px] font-semibold text-white">{user.fullName || '—'}</div>
+                  <div className="text-[14px] font-semibold text-white">{user.name + ' ' + user.surname || '—'}</div>
                   {user.title && <div className="text-[12px] text-[#818CF8] mt-0.5">{user.title}</div>}
                 </div>
               </div>
@@ -112,7 +100,9 @@ const UsersPage = () => {
                 {user.location && (
                   <div className="flex items-center gap-2 text-[12px] text-[#9CA3C7]">
                     <MapPin size={12} className="text-[#5A5F7A] shrink-0" />
-                    <span>{user.location}</span>
+                    <span>
+                      {user.location.city}, {user.location.district}
+                    </span>
                   </div>
                 )}
                 {user.createdAt && (
@@ -124,6 +114,54 @@ const UsersPage = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-1.5 mt-8">
+          <button
+            onClick={() => getUsers(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-white/6 text-[#9CA3C7] hover:bg-[#1C1E27] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronLeft size={16} />
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+            .reduce<(number | 'dots')[]>((acc, page, idx, arr) => {
+              if (idx > 0 && page - (arr[idx - 1] as number) > 1) acc.push('dots');
+              acc.push(page);
+              return acc;
+            }, [])
+            .map((item, idx) =>
+              item === 'dots' ? (
+                <span key={`dots-${idx}`} className="w-9 h-9 flex items-center justify-center text-[#5A5F7A] text-[13px]">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={item}
+                  onClick={() => getUsers(item)}
+                  className={`w-9 h-9 flex items-center justify-center rounded-lg text-[13px] font-medium transition-all ${
+                    currentPage === item
+                      ? 'bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/25'
+                      : 'border border-white/6 text-[#9CA3C7] hover:bg-[#1C1E27] hover:text-white'
+                  }`}
+                >
+                  {item}
+                </button>
+              ),
+            )}
+
+          <button
+            onClick={() => getUsers(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-white/6 text-[#9CA3C7] hover:bg-[#1C1E27] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronRight size={16} />
+          </button>
         </div>
       )}
     </div>
