@@ -1,4 +1,5 @@
-export { CVsPage } from './CVsPage';
+export { CVsPage } from './CVsPage/CVsPage';
 export { UsersPage } from './UsersPage';
 export { DashboardHome } from './DashboardHome';
 export { UserDetails } from './UserDetails';
+export { CvDetails } from './CvDetails';
