@@ -1,4 +1,3 @@
-
 import type { Timestamp } from 'firebase/firestore';
 import type { ILocation, ISocialMedia } from './common';
 
@@ -35,4 +34,11 @@ export interface ICVSummary {
 export interface ISalaryExpectation {
   min?: number;
   max?: number;
+}
+
+export interface UserBasicInfo {
+  photoUrl: string;
+  name: string;
+  surname: string;
+  title: string;
 }

@@ -1,7 +1,7 @@
-import { collection, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore';
 import { useCallback, useState } from 'react';
 import { db } from '../lib/firebase';
-import type { IUser } from '../types';
+import type { IUser, UserBasicInfo } from '../types';
 
 const PAGE_SIZE = 20;
 
@@ -49,7 +49,30 @@ const useUserActions = () => {
     [pageCursors],
   );
 
-  return { loading, totalPages, getUsers };
+  const getUserBasicInfo = async (userId: string): Promise<UserBasicInfo | null> => {
+    try {
+      const docRef = doc(db, 'users', userId);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        return null;
+      }
+
+      const data = docSnap.data();
+
+      return {
+        photoUrl: data.photoUrl,
+        name: data.name,
+        surname: data.surname,
+        title: data.title,
+      };
+    } catch (error) {
+      console.error('User fetch error:', error);
+      return null;
+    }
+  };
+
+  return { loading, totalPages, getUsers, getUserBasicInfo };
 };
 
 export { useUserActions };
