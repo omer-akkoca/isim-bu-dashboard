@@ -1,5 +1,5 @@
-import AdvancedFormat from 'dayjs/plugin/advancedFormat';
 import DAYJS from 'dayjs';
+import AdvancedFormat from 'dayjs/plugin/advancedFormat';
 import 'dayjs/locale/tr';
 
 DAYJS.extend(AdvancedFormat);
@@ -13,7 +13,7 @@ type dayjsProps = {
 };
 
 const useDayJs = () => {
-  const dayjs = ({ date, format, locale }: dayjsProps) => {
+  const dayjs = ({ date, format = 'DD MMMM YYYY', locale }: dayjsProps) => {
     return DAYJS(date)
       .locale(locale ?? 'tr')
       .format(format);
