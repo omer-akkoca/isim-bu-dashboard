@@ -1,7 +1,20 @@
 import { useCallback, useState } from 'react';
-import type { ICV } from '../types';
-import { collection, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore';
+
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  increment,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  updateDoc,
+} from 'firebase/firestore';
+
 import { db } from '../lib/firebase';
+import type { ICV } from '../types';
 
 const PAGE_SIZE = 20;
 
@@ -49,7 +62,29 @@ const useCvActions = () => {
     [pageCursors],
   );
 
-  return { loading, totalPages, getCvs };
+  const getCvDetails = async (cvId: string): Promise<ICV | null> => {
+    try {
+      const docRef = doc(db, 'cvs', cvId);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        return null;
+      }
+
+      const data = docSnap.data() as ICV;
+
+      return data;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const incrementCvViewCount = async (cvId: string) => {
+    const ref = doc(db, 'cvs', cvId);
+    await updateDoc(ref, { viewCount: increment(1) });
+  };
+
+  return { loading, totalPages, getCvs, getCvDetails, incrementCvViewCount };
 };
 
 export { useCvActions };
