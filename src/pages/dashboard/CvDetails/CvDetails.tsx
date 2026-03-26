@@ -90,13 +90,14 @@ const CvDetails = () => {
                 </div>
                 <div>
                   <h1 className="text-[22px] font-bold text-white tracking-tight">{cv.title}</h1>
+
                   <div className="flex items-center gap-4 mt-1.5">
-                    <div className="flex items-center gap-1.5 text-[12px] text-[#5A5F7A]">
-                      <User size={12} />
-                      <span>
-                        UID: <NavLink to={`/dashboard/user/${cv.userId}`}>{cv.userId}</NavLink>
-                      </span>
-                    </div>
+                    <NavLink to={`/dashboard/user/${cv.user.userId}`}>
+                      <div className="flex items-center gap-1.5 text-[12px] text-[#5A5F7A]">
+                        <User size={12} />
+                        <span>UID: {cv.user.userId}</span>
+                      </div>
+                    </NavLink>
                     <div className="flex items-center gap-1.5 text-[12px] text-[#5A5F7A]">
                       <Star size={12} />
                       <span>{cv.viewCount ?? 0} görüntülenme</span>

@@ -1,11 +1,11 @@
-
 import type { Timestamp } from 'firebase/firestore';
+
 import type { ILocation } from './common';
 
 export interface ICV {
   cvId: string;
   title: string;
-  userId: string;
+  user: ICvUser;
   viewCount: number;
   summary: string;
   experience: IExperience[];
@@ -22,6 +22,13 @@ export interface ICV {
   awards: IAward[];
   createdAt: Timestamp;
   updatedAt: Timestamp;
+}
+
+export interface ICvUser {
+  userId: string;
+  fullName: string;
+  userTitle?: string;
+  userPhoto?: string;
 }
 
 export interface IExperience {

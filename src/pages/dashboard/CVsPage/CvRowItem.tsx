@@ -1,52 +1,34 @@
 import type React from 'react';
-import type { ICV, UserBasicInfo } from '../../../types';
+
 import { useNavigate } from 'react-router-dom';
+
 import { useDayJs } from '../../../hooks';
-import { useEffect, useMemo, useState } from 'react';
-import { useUserActions } from '../../../actions';
+import type { ICV } from '../../../types';
 
 type CvRowItemProps = { cv: ICV };
 
 const CvRowItem: React.FC<CvRowItemProps> = ({ cv }) => {
   const { dayjs } = useDayJs();
   const navigate = useNavigate();
-  const { getUserBasicInfo } = useUserActions();
 
-  const [user, setUser] = useState<UserBasicInfo>();
-
-  const initials = useMemo(() => {
-    if (!user) return '-';
-    return `${user.name?.[0] ?? ''}${user.surname?.[0] ?? ''}`.toUpperCase();
-  }, [user]);
-
-  useEffect(() => {
-    const boot = async () => {
-      const bootedData = await getUserBasicInfo(cv.userId);
-      setUser(bootedData ?? undefined);
-    };
-    if (cv) {
-      boot();
-    }
-  }, [cv]);
+  const user = cv.user;
 
   return (
     <tr className={`hover:bg-white/2 transition-colors border-b border-white/4`}>
       {/* Kullanıcı */}
       <td className="px-5 py-3.5">
-        {user ? (
+        {cv.user ? (
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-linear-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center text-[12px] font-bold text-white shrink-0 overflow-hidden">
-              {user.photoUrl ? (
-                <img src={user.photoUrl} alt={user.name} className="w-full h-full object-cover" />
+              {user.userPhoto ? (
+                <img src={user.userPhoto} alt={user.fullName} className="w-full h-full object-cover" />
               ) : (
-                <span>{initials}</span>
+                <span>{user.fullName}</span>
               )}
             </div>
             <div>
-              <div className="text-[13px] font-medium text-white">
-                {user.name} {user.surname}
-              </div>
-              {user.title && <div className="text-[11px] text-[#5A5F7A] mt-0.5">{user.title}</div>}
+              <div className="text-[13px] font-medium text-white">{user.fullName}</div>
+              {user.userTitle && <div className="text-[11px] text-[#5A5F7A] mt-0.5">{user.userTitle}</div>}
             </div>
           </div>
         ) : (
