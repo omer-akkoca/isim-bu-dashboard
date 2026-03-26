@@ -1,5 +1,18 @@
-import { collection, doc, getDoc, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore';
 import { useCallback, useState } from 'react';
+
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  increment,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  updateDoc,
+} from 'firebase/firestore';
+
 import { db } from '../lib/firebase';
 import type { IUser, UserBasicInfo } from '../types';
 
@@ -67,12 +80,33 @@ const useUserActions = () => {
         title: data.title,
       };
     } catch (error) {
-      console.error('User fetch error:', error);
       return null;
     }
   };
 
-  return { loading, totalPages, getUsers, getUserBasicInfo };
+  const getUserDetails = async (userId: string): Promise<IUser | null> => {
+    try {
+      const docRef = doc(db, 'users', userId);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        return null;
+      }
+
+      const data = docSnap.data() as IUser;
+
+      return data;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const incrementUserViewCount = async (userId: string) => {
+    const ref = doc(db, 'users', userId);
+    await updateDoc(ref, { viewCount: increment(1) });
+  };
+
+  return { loading, totalPages, getUsers, getUserBasicInfo, getUserDetails, incrementUserViewCount };
 };
 
 export { useUserActions };
