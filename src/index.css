@@ -12,21 +12,30 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #222530;
+  background: #d1d5db;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #5a5f7a;
+  background: #9ca3af;
 }
 
 @theme {
+  /* Brand */
   --color-primary: #6366f1;
   --color-primary-light: #818cf8;
   --color-secondary: #8b5cf6;
 
-  /* buraya istediğin renkleri ekle */
-  --color-surface: #1c1e27;
-  --color-background: #0b0c10;
+  /* Light theme surfaces */
+  --color-background: #f5f6fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f1f7;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+
+  /* Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
 }
 
 @layer base {

@@ -14,7 +14,7 @@ const CvRowItem: React.FC<CvRowItemProps> = ({ cv }) => {
   const user = cv.user;
 
   return (
-    <tr className={`hover:bg-white/2 transition-colors border-b border-white/4`}>
+    <tr className="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
       {/* Kullanıcı */}
       <td className="px-5 py-3.5">
         {cv.user ? (
@@ -23,25 +23,26 @@ const CvRowItem: React.FC<CvRowItemProps> = ({ cv }) => {
               {user.userPhoto ? (
                 <img src={user.userPhoto} alt={user.fullName} className="w-full h-full object-cover" />
               ) : (
-                <span>{user.fullName}</span>
+                <span>{user.fullName?.[0]}</span>
               )}
             </div>
             <div>
-              <div className="text-[13px] font-medium text-white">{user.fullName}</div>
-              {user.userTitle && <div className="text-[11px] text-[#5A5F7A] mt-0.5">{user.userTitle}</div>}
+              <div className="text-[13px] font-medium text-gray-900">{user.fullName}</div>
+              {user.userTitle && <div className="text-[11px] text-gray-400 mt-0.5">{user.userTitle}</div>}
             </div>
           </div>
         ) : (
-          <span className="text-[13px] text-[#9CA3C7]">Bulunamadı</span>
+          <span className="text-[13px] text-gray-400">Bulunamadı</span>
         )}
       </td>
+
       {/* CV Başlığı */}
       <td className="px-5 py-3.5">
-        <div className="text-[13px] font-medium text-white">{cv.title}</div>
+        <div className="text-[13px] font-medium text-gray-900">{cv.title}</div>
       </td>
 
       {/* Güncelleme */}
-      <td className="px-5 py-3.5 text-[13px] text-[#9CA3C7]">
+      <td className="px-5 py-3.5 text-[13px] text-gray-400">
         {dayjs({ date: cv.updatedAt.toDate(), format: 'DD MMM YYYY' })}
       </td>
 
@@ -49,7 +50,7 @@ const CvRowItem: React.FC<CvRowItemProps> = ({ cv }) => {
       <td className="px-5 py-3.5">
         <button
           onClick={() => navigate(`/dashboard/cv/${cv.cvId}`)}
-          className="text-[#6366F1] hover:text-[#818CF8] text-[12px] font-medium"
+          className="text-[#6366F1] hover:text-[#4F46E5] text-[12px] font-medium"
         >
           Görüntüle →
         </button>

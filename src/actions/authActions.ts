@@ -1,8 +1,11 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from '../lib/firebase';
 import { useCallback, useState } from 'react';
-import type { ActionProps } from '../types';
+
+import { FirebaseError } from 'firebase/app';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+
+import { auth } from '../lib/firebase';
 import type { LoginProps, RegisterProps } from '../pages/@types';
+import type { ActionProps } from '../types';
 
 const useAuthActions = () => {
   const [error, setError] = useState('');
@@ -14,17 +17,20 @@ const useAuthActions = () => {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
       onSuccess?.();
-    } catch (err: any) {
-      const code = err?.code;
-      if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-        setError('E-posta veya şifre hatalı.');
-      } else if (code === 'auth/email-already-in-use') {
-        setError('Bu e-posta zaten kullanılıyor.');
-      } else if (code === 'auth/weak-password') {
-        setError('Şifre en az 6 karakter olmalı.');
-      } else {
-        setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+    } catch (err: unknown) {
+      if (err instanceof FirebaseError) {
+        const code = err?.code;
+        if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+          setError('E-posta veya şifre hatalı.');
+        } else if (code === 'auth/email-already-in-use') {
+          setError('Bu e-posta zaten kullanılıyor.');
+        } else if (code === 'auth/weak-password') {
+          setError('Şifre en az 6 karakter olmalı.');
+        } else {
+          setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+        }
       }
+
       onError?.();
     } finally {
       setLoading(false);
@@ -41,16 +47,18 @@ const useAuthActions = () => {
       setLoading(true);
       await createUserWithEmailAndPassword(auth, email, password);
       onSuccess?.();
-    } catch (err: any) {
-      const code = err?.code;
-      if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-        setError('E-posta veya şifre hatalı.');
-      } else if (code === 'auth/email-already-in-use') {
-        setError('Bu e-posta zaten kullanılıyor.');
-      } else if (code === 'auth/weak-password') {
-        setError('Şifre en az 6 karakter olmalı.');
-      } else {
-        setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+    } catch (err: unknown) {
+      if (err instanceof FirebaseError) {
+        const code = err?.code;
+        if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+          setError('E-posta veya şifre hatalı.');
+        } else if (code === 'auth/email-already-in-use') {
+          setError('Bu e-posta zaten kullanılıyor.');
+        } else if (code === 'auth/weak-password') {
+          setError('Şifre en az 6 karakter olmalı.');
+        } else {
+          setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+        }
       }
       onError?.();
     } finally {
@@ -58,14 +66,17 @@ const useAuthActions = () => {
     }
   }, []);
 
-  const logout = useCallback(async ({ onSuccess }: ActionProps<null>) => {
+  const logout = useCallback(async ({ onSuccess, onError }: ActionProps<null>) => {
     try {
       setLoading(true);
       await signOut(auth);
       onSuccess?.();
-    } catch (err: any) {
-      const message = err?.message;
-      setError(message);
+    } catch (err: unknown) {
+      if (err instanceof FirebaseError) {
+        const message = err?.message;
+        setError(message);
+      }
+      onError?.();
     } finally {
       setLoading(false);
     }

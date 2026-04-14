@@ -1,8 +1,4 @@
 import DAYJS from 'dayjs';
-import AdvancedFormat from 'dayjs/plugin/advancedFormat';
-import 'dayjs/locale/tr';
-
-DAYJS.extend(AdvancedFormat);
 
 type date = string | number | Date;
 

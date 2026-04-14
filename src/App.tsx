@@ -1,8 +1,15 @@
+import Dayjs from 'dayjs';
+import AdvancedFormat from 'dayjs/plugin/advancedFormat';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute';
+
+import { ProtectedRoute } from './components';
+import { CvDetails, CVsPage, DashboardHome, HomePage, LoginPage, UserDetails, UsersPage } from './pages';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import { AuthProvider } from './providers/AuthProvider';
-import { CvDetails, CVsPage, DashboardHome, HomePage, LoginPage, UserDetails, UsersPage } from './pages';
+
+import 'dayjs/locale/tr';
+
+Dayjs.extend(AdvancedFormat);
 
 function App() {
   return (

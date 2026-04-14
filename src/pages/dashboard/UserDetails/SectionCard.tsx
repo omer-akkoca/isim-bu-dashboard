@@ -1,3 +1,4 @@
+// UserDetails/SectionCard.tsx
 const SectionCard = ({
   title,
   icon: Icon,
@@ -7,12 +8,12 @@ const SectionCard = ({
   icon: React.ElementType;
   children: React.ReactNode;
 }) => (
-  <div className="bg-[#1C1E27] border border-white/6 rounded-2xl overflow-hidden">
-    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/6">
-      <div className="w-7 h-7 rounded-lg bg-[#6366F1]/12 border border-[#6366F1]/20 flex items-center justify-center text-[#818CF8]">
+  <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-gray-100">
+      <div className="w-7 h-7 rounded-lg bg-[#6366F1]/8 border border-[#6366F1]/15 flex items-center justify-center text-[#6366F1]">
         <Icon size={14} />
       </div>
-      <span className="text-[13px] font-semibold text-white">{title}</span>
+      <span className="text-[13px] font-semibold text-gray-900">{title}</span>
     </div>
     <div className="px-5 py-4">{children}</div>
   </div>
