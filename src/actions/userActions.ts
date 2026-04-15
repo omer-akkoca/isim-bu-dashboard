@@ -1,112 +1,79 @@
 import { useCallback, useState } from 'react';
 
 import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  increment,
-  limit,
-  orderBy,
-  query,
-  startAfter,
-  updateDoc,
-} from 'firebase/firestore';
-
-import { db } from '../lib/firebase';
-import type { IUser, UserBasicInfo } from '../types';
-
-const PAGE_SIZE = 20;
+  getAllUsers,
+  getUserActiveCvs,
+  getUserBasicInfo,
+  getUserCount,
+  getUserDetails,
+  incrementUserViewCount,
+} from '../services';
+import type { ICV, IUser, UserBasicInfo } from '../types';
 
 const useUserActions = () => {
   const [loading, setLoading] = useState(false);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageCursors, setPageCursors] = useState<Record<number, unknown>>({});
 
-  const getUsers = useCallback(
-    async (page: number = 1): Promise<IUser[]> => {
-      setLoading(true);
-      try {
-        // Toplam sayıyı öğrenmek için count sorgusu
-        const countSnap = await getDocs(collection(db, 'users'));
-        const total = countSnap.size;
-        setTotalPages(Math.ceil(total / PAGE_SIZE));
+  const handleGetUserCount = useCallback(async (): Promise<number> => {
+    const cvCount = await getUserCount();
+    return cvCount;
+  }, []);
 
-        let q;
-
-        if (page === 1) {
-          q = query(collection(db, 'users'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
-        } else {
-          const cursor = pageCursors[page];
-          if (!cursor) return [];
-          q = query(collection(db, 'users'), orderBy('createdAt', 'desc'), startAfter(cursor), limit(PAGE_SIZE));
-        }
-
-        const snap = await getDocs(q);
-
-        // Sonraki sayfa için cursor'ı sakla
-        const lastDoc = snap.docs[snap.docs.length - 1];
-        if (lastDoc) {
-          setPageCursors(prev => ({ ...prev, [page + 1]: lastDoc }));
-        }
-
-        const users = snap.docs.map(doc => doc.data()) as IUser[];
-
-        return users;
-      } catch (err) {
-        return [];
-      } finally {
-        setLoading(false);
-      }
-    },
-    [pageCursors],
-  );
-
-  const getUserBasicInfo = async (userId: string): Promise<UserBasicInfo | null> => {
+  const handleGetAllUsers = useCallback(async (): Promise<IUser[]> => {
+    setLoading(true);
     try {
-      const docRef = doc(db, 'users', userId);
-      const docSnap = await getDoc(docRef);
+      const data = await getAllUsers();
+      if (data) return data;
+      return [];
+    } catch (error) {
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-      if (!docSnap.exists()) {
-        return null;
-      }
-
-      const data = docSnap.data();
-
-      return {
-        photoUrl: data.photoUrl,
-        name: data.name,
-        surname: data.surname,
-        title: data.title,
-      };
+  const handleGetUserBasicInfo = async (userId: string): Promise<UserBasicInfo | null> => {
+    try {
+      const userBasicInfo = getUserBasicInfo(userId);
+      return userBasicInfo;
     } catch (error) {
       return null;
     }
   };
 
-  const getUserDetails = async (userId: string): Promise<IUser | null> => {
+  const handleGetUserDetails = useCallback(async (userId: string): Promise<IUser | null> => {
     try {
-      const docRef = doc(db, 'users', userId);
-      const docSnap = await getDoc(docRef);
-
-      if (!docSnap.exists()) {
-        return null;
-      }
-
-      const data = docSnap.data() as IUser;
-
-      return data;
+      const user = await getUserDetails(userId);
+      if (user) return user;
+      return null;
     } catch (error) {
       return null;
     }
+  }, []);
+
+  const handleIncrementUserViewCount = async (cvId: string) => {
+    await incrementUserViewCount(cvId);
   };
 
-  const incrementUserViewCount = async (userId: string) => {
-    const ref = doc(db, 'users', userId);
-    await updateDoc(ref, { viewCount: increment(1) });
-  };
+  const handlegetUserActiveCvs = useCallback(async (userId: string): Promise<ICV[] | []> => {
+    try {
+      const userCVs = await getUserActiveCvs(userId);
+      if (userCVs) return userCVs;
+      return [];
+    } catch (error) {
+      return [];
+    }
+  }, []);
 
-  return { loading, totalPages, getUsers, getUserBasicInfo, getUserDetails, incrementUserViewCount };
+  return {
+    loading,
+    handleGetUserCount,
+    handleGetAllUsers,
+    handleGetUserBasicInfo,
+    getUserDetails,
+    handleIncrementUserViewCount,
+    handleGetUserDetails,
+    handlegetUserActiveCvs,
+  };
 };
 
 export { useUserActions };
