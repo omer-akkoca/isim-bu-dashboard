@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { useDayJs } from '../../../hooks';
 import type { ICV } from '../../../types';
+import { getCvCompletenessColor } from '../../../utils';
+import { calculateCVCompleteness } from '../../../utils/cvCompletion';
 
 type CvRowItemProps = { cv: ICV };
 
@@ -11,34 +13,25 @@ const CvRowItem: React.FC<CvRowItemProps> = ({ cv }) => {
   const { dayjs } = useDayJs();
   const navigate = useNavigate();
 
-  const user = cv.user;
+  const { score } = calculateCVCompleteness(cv);
+
+  const color = getCvCompletenessColor(score);
 
   return (
     <tr className="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-      {/* Kullanıcı */}
-      <td className="px-5 py-3.5">
-        {cv.user ? (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-linear-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center text-[12px] font-bold text-white shrink-0 overflow-hidden">
-              {user.userPhoto ? (
-                <img src={user.userPhoto} alt={user.fullName} className="w-full h-full object-cover" />
-              ) : (
-                <span>{user.fullName?.[0]}</span>
-              )}
-            </div>
-            <div>
-              <div className="text-[13px] font-medium text-gray-900">{user.fullName}</div>
-              {user.userTitle && <div className="text-[11px] text-gray-400 mt-0.5">{user.userTitle}</div>}
-            </div>
-          </div>
-        ) : (
-          <span className="text-[13px] text-gray-400">Bulunamadı</span>
-        )}
-      </td>
-
       {/* CV Başlığı */}
       <td className="px-5 py-3.5">
-        <div className="text-[13px] font-medium text-gray-900">{cv.title}</div>
+        <div className="text-[13px] font-medium text-gray-900 capitalize">{cv.title}</div>
+      </td>
+
+      {/* CV Tamamlama Oranı */}
+      <td className="px-5 py-3.5">
+        <span className={`text-[13px] font-bold ${color.text}`}>{score}%</span>
+      </td>
+
+      {/* Oluşturma */}
+      <td className="px-5 py-3.5 text-[13px] text-gray-400">
+        {dayjs({ date: cv.createdAt.toDate(), format: 'DD MMM YYYY' })}
       </td>
 
       {/* Güncelleme */}

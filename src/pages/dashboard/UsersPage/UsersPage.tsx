@@ -1,46 +1,47 @@
 import { useEffect, useState } from 'react';
 
-import { FileText } from 'lucide-react';
+import { Users } from 'lucide-react';
 
-import { useCvActions } from '../../../actions';
-import type { ICV } from '../../../types';
+import { useUserActions } from '../../../actions';
+import type { IUser } from '../../../types';
 
-import CvRowItem from './CvRowItem';
+import UserRowItem from './UserRowItem';
 
-const CVsPage = () => {
-  const [cvs, setCvs] = useState<ICV[]>([]);
-  const [cvCount, setCvCount] = useState<number>(0);
-  const { loading, handleGetAllActiveCvs, handleGetActiveCvCount } = useCvActions();
+const UsersPage = () => {
+  const { loading, handleGetUserCount, handleGetAllUsers } = useUserActions();
+
+  const [userCount, setUserCount] = useState<number>(0);
+  const [users, setUsers] = useState<IUser[]>([]);
 
   useEffect(() => {
     const boot = async () => {
-      const data = await handleGetAllActiveCvs();
-      setCvs(data);
+      const data = await handleGetAllUsers();
+      setUsers(data);
     };
     boot();
   }, []);
 
   useEffect(() => {
     const boot = async () => {
-      const cvCount = await handleGetActiveCvCount();
-      setCvCount(cvCount);
+      const cvCount = await handleGetUserCount();
+      setUserCount(cvCount);
     };
     boot();
   }, []);
 
   return (
-    <div className="p-10 animate-[fadeUp_0.3s_ease]">
+    <div className="p-10 mx-auto animate-[fadeUp_0.3s_ease]">
       <style>{`@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }`}</style>
 
       {/* Header */}
       <div className="flex items-start justify-between mb-7">
         <div>
-          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">CV'ler</h1>
-          <p className="text-[13px] text-gray-400 mt-1">Kullanıcıların oluşturduğu tüm CV'ler</p>
+          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Kullanıcılar</h1>
+          <p className="text-[13px] text-gray-400 mt-1">Uygulamaya kayıtlı tüm kullanıcılar</p>
         </div>
         <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 text-[12px] font-medium text-gray-500">
-          <FileText size={15} className="text-[#6366F1]" />
-          <span>Toplam {cvCount} CV</span>
+          <Users size={15} className="text-[#6366F1]" />
+          <span>Toplam {userCount} kullanıcı</span>
         </div>
       </div>
 
@@ -54,16 +55,16 @@ const CVsPage = () => {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">
-                  CV Başlığı
+                  Kullanıcı
                 </th>
                 <th className="text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">
-                  Tamamlanma Oranı
+                  Ünvan
                 </th>
                 <th className="text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">
-                  Oluşturma
+                  Cinsiyet
                 </th>
                 <th className="text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">
-                  Güncelleme
+                  İş Arama
                 </th>
                 <th className="text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">
                   Detay
@@ -71,8 +72,8 @@ const CVsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {cvs.map((cv, i) => (
-                <CvRowItem key={i.toString()} cv={cv} />
+              {users.map((user, idx) => (
+                <UserRowItem key={user.uid} user={user} isLast={idx !== users.length - 1} />
               ))}
             </tbody>
           </table>
@@ -82,4 +83,4 @@ const CVsPage = () => {
   );
 };
 
-export { CVsPage };
+export { UsersPage };

@@ -7,7 +7,7 @@ import * as actions from '../../../actions';
 import { Row } from '../../../components';
 import { formatSalary, GENDER_MAP, JOB_STATUS_MAP, MILITARY_MAP } from '../../../constants/typeMaps';
 import { useDayJs } from '../../../hooks';
-import type { IUser } from '../../../types';
+import type { ICV, IUser } from '../../../types';
 
 import SectionCard from './SectionCard';
 
@@ -15,8 +15,10 @@ const UserDetails = () => {
   const { user_id } = useParams<{ user_id: string }>();
   const { dayjs } = useDayJs();
 
-  const { loading, getUserDetails, incrementUserViewCount } = actions.useUserActions();
+  const { loading, getUserDetails, handleIncrementUserViewCount, handlegetUserActiveCvs } = actions.useUserActions();
+
   const [user, setUser] = useState<IUser>();
+  const [userCVs, setUserCVs] = useState<ICV[]>([]);
 
   const initials = useMemo(() => {
     if (!user) return '-';
@@ -33,15 +35,23 @@ const UserDetails = () => {
     return MILITARY_MAP[user.militaryStatus];
   }, [user]);
 
+  const getDomain = (url: string) => {
+    return url.replace(/^https?:\/\/(www\.)?|\/$/g, '');
+  };
+
   useEffect(() => {
-    if (!user_id) return;
-    incrementUserViewCount(user_id);
+    const boot = async () => {
+      handleIncrementUserViewCount(user_id!);
+      const bootedData = await getUserDetails(user_id!);
+      if (bootedData) setUser(bootedData);
+    };
+    if (user_id) boot();
   }, [user_id]);
 
   useEffect(() => {
     const boot = async () => {
-      const bootedData = await getUserDetails(user_id!);
-      if (bootedData) setUser(bootedData);
+      const cvs = await handlegetUserActiveCvs(user_id!);
+      setUserCVs(cvs);
     };
     if (user_id) boot();
   }, [user_id]);
@@ -90,14 +100,14 @@ const UserDetails = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <div className="flex items-center gap-1.5 text-[12px] text-gray-500">
+                  <a href={`mailto:${user.email}`} className="flex items-center gap-1.5 text-[12px] text-gray-500">
                     <Mail size={13} className="text-gray-400" />
                     <span>{user.email}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[12px] text-gray-500">
+                  </a>
+                  <a href={`tel:${user.phone}`} className="flex items-center gap-1.5 text-[12px] text-gray-500">
                     <Phone size={13} className="text-gray-400" />
                     <span>{user.phone}</span>
-                  </div>
+                  </a>
                   <div className="flex items-center gap-1.5 text-[12px] text-gray-500">
                     <MapPin size={13} className="text-gray-400" />
                     <span>
@@ -169,7 +179,7 @@ const UserDetails = () => {
                         rel="noopener noreferrer"
                         className="text-[12px] text-[#6366F1] hover:text-[#4F46E5] transition-colors truncate max-w-45"
                       >
-                        {sm.url}
+                        {getDomain(sm.url)}
                       </a>
                     </div>
                   ))}
@@ -182,7 +192,7 @@ const UserDetails = () => {
 
           {/* CV'ler — full width */}
           <SectionCard title="CV'ler" icon={FileText}>
-            {user.cvs?.length > 0 ? (
+            {userCVs.length > 0 ? (
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100">
@@ -195,8 +205,8 @@ const UserDetails = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {user.cvs.map((cv, i) => (
-                    <tr key={cv.cvId} className={i !== user.cvs.length - 1 ? 'border-b border-gray-100' : ''}>
+                  {userCVs.map((cv, i) => (
+                    <tr key={cv.cvId} className={i !== userCVs.length - 1 ? 'border-b border-gray-100' : ''}>
                       <td className="py-3 text-[13px] text-gray-900 font-medium">
                         <NavLink to={`/dashboard/cv/${cv.cvId}`} className="text-[#6366F1] hover:text-[#4F46E5]">
                           {cv.title}

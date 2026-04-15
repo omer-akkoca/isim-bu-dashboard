@@ -13,11 +13,11 @@ export interface IUser {
   gender: GenderType;
   birthDate: Timestamp;
   location: ILocation;
-  cvs: ICVSummary[];
   jobSearchStatus: JobSearchStatusType;
   socialMedia: ISocialMedia[];
   militaryStatus: MilitaryStatusType;
   salaryExpectation: ISalaryExpectation;
+  viewCount: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -38,6 +38,7 @@ export interface ISalaryExpectation {
 }
 
 export interface UserBasicInfo {
+  userId: string;
   photoUrl: string;
   name: string;
   surname: string;

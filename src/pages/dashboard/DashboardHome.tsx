@@ -33,7 +33,7 @@ const DashboardHome = () => {
   const firstName = user?.email?.split('@')[0] ?? 'İşveren';
 
   return (
-    <div className="min-h-full p-9 max-w-250">
+    <div className="min-h-full p-10">
       {/* Hero */}
       <div className="relative rounded-3xl overflow-hidden bg-linear-to-br from-[#6366F1] via-[#7C3AED] to-[#8B5CF6] p-10 mb-8">
         <div

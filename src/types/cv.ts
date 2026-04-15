@@ -5,7 +5,7 @@ import type { ILocation } from './common';
 export interface ICV {
   cvId: string;
   title: string;
-  user: ICvUser;
+  userId: string;
   viewCount: number;
   summary: string;
   experience: IExperience[];
@@ -20,15 +20,10 @@ export interface ICV {
   courses: ICourse[];
   patents: IPatent[];
   awards: IAward[];
+  status: cvStatus;
+  deletedAt: Timestamp | null;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-}
-
-export interface ICvUser {
-  userId: string;
-  fullName: string;
-  userTitle?: string;
-  userPhoto?: string;
 }
 
 export interface IExperience {
@@ -38,8 +33,8 @@ export interface IExperience {
   employmentType: EmploymentType;
   workType: WorkType;
   startDate: Timestamp;
-  endDate: Timestamp | null; // hala çalışıyorsa null
-  isCurrent: boolean; // hala bu işte mi
+  endDate: Timestamp | null;
+  isCurrent: boolean;
   description: string;
   location: ILocation;
   skills: string[];
@@ -136,3 +131,5 @@ export type CommonLanguagesType =
   | 'portuguese'
   | 'hindi'
   | 'other';
+
+export type cvStatus = 'active' | 'deleted' | 'permanently_deleted';

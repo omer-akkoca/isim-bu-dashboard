@@ -23,10 +23,11 @@ import {
 } from 'lucide-react';
 import { NavLink, useParams } from 'react-router-dom';
 
-import { useCvActions } from '../../../actions';
+import { useCvActions, useUserActions } from '../../../actions';
 import { EmptyState, Tag } from '../../../components';
 import { DEGREE_MAP, EMPLOYMENT_MAP, LANGUAGE_MAP, PROFICIENCY_MAP, WORK_TYPE_MAP } from '../../../constants/typeMaps';
-import type { ICV } from '../../../types';
+import { useDayJs } from '../../../hooks';
+import type { ICV, UserBasicInfo } from '../../../types';
 
 import CVCompleteness from './CVCompleteness';
 import SectionCard from './SectionCard';
@@ -38,22 +39,32 @@ const dateRange = (start: Timestamp, end: Timestamp | null, isCurrent: boolean) 
   `${fmt(start)} – ${isCurrent ? 'Devam Ediyor' : (fmt(end) ?? '?')}`;
 
 const CvDetails = () => {
+  const { dayjs } = useDayJs();
   const { cv_id } = useParams<{ cv_id: string }>();
-  const { loading, getCvDetails, incrementCvViewCount } = useCvActions();
+  const { loading, handleGetCvDetails, handleIncrementCvViewCount } = useCvActions();
+  const { handleGetUserBasicInfo } = useUserActions();
+
   const [cv, setCv] = useState<ICV>();
+  const [basicUser, setBasicInfo] = useState<UserBasicInfo>();
 
   useEffect(() => {
     const boot = async () => {
-      const bootedData = await getCvDetails(cv_id!);
-      if (bootedData) setCv(bootedData);
+      const data = await handleGetCvDetails(cv_id!);
+      if (data) setCv(data);
     };
-    if (cv_id) boot();
+    if (cv_id) {
+      boot();
+      handleIncrementCvViewCount(cv_id);
+    }
   }, [cv_id]);
 
   useEffect(() => {
-    if (!cv_id) return;
-    incrementCvViewCount(cv_id);
-  }, [cv_id]);
+    const boot = async () => {
+      const data = await handleGetUserBasicInfo(cv!.userId);
+      if (data) setBasicInfo(data);
+    };
+    if (cv) boot();
+  }, [cv]);
 
   return (
     <div className="p-10 animate-[fadeUp_0.3s_ease]">
@@ -82,12 +93,14 @@ const CvDetails = () => {
                 <div>
                   <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">{cv.title}</h1>
                   <div className="flex items-center gap-4 mt-1.5">
-                    <NavLink to={`/dashboard/user/${cv.user.userId}`}>
-                      <div className="flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-[#6366F1] transition-colors">
-                        <User size={12} />
-                        <span>UID: {cv.user.userId}</span>
-                      </div>
-                    </NavLink>
+                    {basicUser ? (
+                      <NavLink to={`/dashboard/user/${basicUser.userId}`}>
+                        <div className="flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-[#6366F1] transition-colors">
+                          <User size={12} />
+                          <span>Kullanıcı Id: {basicUser.userId}</span>
+                        </div>
+                      </NavLink>
+                    ) : null}
                     <div className="flex items-center gap-1.5 text-[12px] text-gray-400">
                       <Star size={12} />
                       <span>{cv.viewCount ?? 0} görüntülenme</span>
@@ -443,6 +456,22 @@ const CvDetails = () => {
                 <EmptyState text="Sürücü belgesi eklenmemiş." />
               )}
             </SectionCard>
+          </div>
+
+          {/* Meta */}
+          <div className="flex items-center gap-6 px-1">
+            <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+              <Clock size={12} />
+              <span>Kayıt: {dayjs({ date: cv.createdAt.toDate() })}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+              <Shield size={12} />
+              <span>Cv ID: {cv.cvId}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+              <Clock size={12} />
+              <span>Güncelleme: {dayjs({ date: cv.updatedAt.toDate() })}</span>
+            </div>
           </div>
         </div>
       )}
